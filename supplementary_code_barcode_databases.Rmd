@@ -86,7 +86,8 @@ print(sd(family_regional_per)/sqrt(length(family_regional_per)))
 ```{r}
 sites_data <- read_tsv("site_id_data.txt") %>%
   mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Site)) %>%
-  mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Site))  # Create new columns for the site data, which the original data didn't have.
+  mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Site)) %>%
+  mutate(Perc_Regional = (Species_Custom_Database / Observed_Species_Per_Site))  # Create new columns for the site data, which the original data didn't have.
 
 sites_blast_98 <- sites_data %>%
   pull(Species_BLAST_98)  # Create three vectors of data for the # of species identified by each database instance.
@@ -110,7 +111,7 @@ sites_blast_98_per <- sites_data %>%
 sites_blast_985_per <- sites_data %>%
   pull(Perc_Blast_98_5)
 sites_regional_per <- sites_data %>%
-  pull(Percent_Custom_Database)
+  pull(Perc_Regional)
 
 print(mean(sites_blast_98_per))  # Calculate mean, standard deviation, and standard error for percentage vectors.
 print(sd(sites_blast_98_per))
