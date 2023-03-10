@@ -1,0 +1,12 @@
+Site	Observed_Species_Per_Site	Species_BLAST_98	Species_BLAST_98_5	Species_Custom_Database
+Broom Canyon	146	52	46	112
+Pine Creek	112	45	38	85
+Moore's Creek	98	40	34	73
+Death Hollow	100	43	37	75
+Delano Peak	123	49	41	101
+Harmon Creek	80	38	33	64
+Mosquito Creek	115	50	43	86
+Quail Creek	103	44	36	79
+Whipple Creek	96	43	38	76
+BYU	65	36	31	47
+P.B. Woodpile	144	50	46	115
