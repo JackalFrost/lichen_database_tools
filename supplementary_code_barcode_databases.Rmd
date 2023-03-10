@@ -1,0 +1,301 @@
+---
+title: Do Custom Regional DNA Barcode Databases Lead to More Efficient Specimen ID?
+  Supplementary Code
+author: "Michael Kerr"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Do Regional DNA Barcode Databases Lead to More Efficient Specimen Identification?
+
+This R Markdown document contains the R code used to analyze the data for the above paper by Kerr & Leavitt. Comments have been added to explain what the code did. The code was collected and coalesced into this document from the various documents that held the code.
+
+The document has been broken into sections that correspond with focuses of the analysis. The sections are:
+
+1.  Packages Used
+2.  Taxonomic Family Data Calculations
+3.  Geographic Sampling Site Data Calculations
+4.  Taxonomic Family Data Statistical Testing
+5.  Geographic Sampling Site Data Statistical Testing
+6.  Taxonomic Family Data Visualization
+7.  Geographic Sampling Site Data Visualization
+8.  Total Identification Data Visualization
+
+### Packages Used
+
+```{r}
+library(tidyverse)
+library(broom) # Load the tidyverse and broom packages for ease of data analysis.
+# install.packages("RColorBrewer")
+library(RColorBrewer)  # RColorBrewer helps with making colorblind-friendly figures
+#install.packages("extrafont")
+# library(extrafont)
+# font_import()
+# loadfonts(device="win") ## Use extrafont to check current font for figures
+```
+
+### Taxonomic Family Data Calculations
+
+```{r}
+family_data <- read_tsv("family_data_for_f.txt") %>%
+  mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Family)) %>%
+  mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Family)) %>%
+  mutate(Perc_Regional = (Species_Custom_Database / Observed_Species_Per_Family))  # Modify taxonomic family data to include identification percentage columns.
+
+family_98 <- family_data %>%
+  pull(Species_BLAST_98)  # Create three vectors for # of species identified by each database instance.
+family_985 <- family_data %>%
+  pull(Species_BLAST_98_5)
+family_regional <- family_data %>%
+  pull(Species_Custom_Database)
+
+print(mean(family_98))  # Calculate mean, standard deviation, and standard error for number of species vectors.
+print(sd(family_98))
+print(sd(family_98)/sqrt(length(family_98)))
+print(mean(family_985))
+print(sd(family_985))
+print(sd(family_985)/sqrt(length(family_985)))
+print(mean(family_regional))
+print(sd(family_regional))
+print(sd(family_regional)/sqrt(length(family_regional)))  
+
+family_98_per <- family_data %>%
+  pull(Perc_Blast_98)  # Create three vectors of % of species identified by each database instance
+family_985_per <- family_data %>%
+  pull(Perc_Blast_98_5)
+family_regional_per <- family_data %>%
+  pull(Perc_Regional)
+
+print(mean(family_98_per))  # Calculate mean, standard deviation, and standard error for percentage of species vectors.
+print(sd(family_98_per))
+print(sd(family_98_per)/sqrt(length(family_98_per)))
+print(mean(family_985_per))
+print(sd(family_985_per))
+print(sd(family_985_per)/sqrt(length(family_985_per)))
+print(mean(family_regional_per))
+print(sd(family_regional_per))
+print(sd(family_regional_per)/sqrt(length(family_regional_per)))  
+```
+
+### Geographic Sampling Site Data Calculations
+
+```{r}
+sites_data <- read_tsv("site_id_data.txt") %>%
+  mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Site)) %>%
+  mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Site))  # Create new columns for the site data, which the original data didn't have.
+
+sites_blast_98 <- sites_data %>%
+  pull(Species_BLAST_98)  # Create three vectors of data for the # of species identified by each database instance.
+sites_blast_985 <- sites_data %>%
+  pull(Species_BLAST_98_5)
+sites_regional <- sites_data %>%
+  pull(Species_Custom_Database)
+
+print(mean(sites_blast_98))  # Calculate mean, standard deviation, and standard error of the vectors of species # data.
+print(sd(sites_blast_98))
+print(sd(sites_blast_98)/sqrt(length(sites_blast_98)))
+print(mean(sites_blast_985))
+print(sd(sites_blast_985))
+print(sd(sites_blast_985)/sqrt(length(sites_blast_985)))
+print(mean(sites_regional))
+print(sd(sites_regional))
+print(sd(sites_regional)/sqrt(length(sites_regional))) 
+
+sites_blast_98_per <- sites_data %>%
+  pull(Perc_Blast_98)  #Create three vectors of data for the % of species identified by each database instance.
+sites_blast_985_per <- sites_data %>%
+  pull(Perc_Blast_98_5)
+sites_regional_per <- sites_data %>%
+  pull(Percent_Custom_Database)
+
+print(mean(sites_blast_98_per))  # Calculate mean, standard deviation, and standard error for percentage vectors.
+print(sd(sites_blast_98_per))
+print(sd(sites_blast_98_per)/sqrt(length(sites_blast_98_per)))
+print(mean(sites_blast_985_per))
+print(sd(sites_blast_985_per))
+print(sd(sites_blast_985_per)/sqrt(length(sites_blast_985_per)))
+print(mean(sites_regional_per))
+print(sd(sites_regional_per))
+print(sd(sites_regional_per)/sqrt(length(sites_regional_per))) 
+```
+
+### Taxonomic Family Data Statistical Testing
+
+```{r}
+family_data <- family_data <- read_tsv("family_data_for_f.txt") %>%
+  mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Family)) %>%
+  mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Family)) %>%
+  rename("BLAST_98" = Species_BLAST_98, "BLAST_98.5" = Species_BLAST_98_5, "Regional" = Species_Custom_Database) %>%
+  mutate(BLAST_98 = log(BLAST_98), BLAST_98.5 = log(BLAST_98.5), Regional = log(Regional))  # Rename columns of taxonomic family data to reflect just the database and aid in pivoting data; log-transform species numbers columns to achieve normal distribution (any 0 values changed by adding 1 to them to allow log-transform to work, which will set the 1 value to zero after log-transformation)
+
+shapiro.test(family_data$BLAST_98)  # Run Shapiro-Wilk tests to check for normal distribution of taxonomic family data
+shapiro.test(family_data$BLAST_98.5)
+shapiro.test(family_data$Regional) 
+
+family_data <- family_data %>%
+  pivot_longer(c(BLAST_98, BLAST_98.5, Regional), names_to = "Database", values_to = "Species_Identified")  # Pivot columns to facilitate ANOVA testing
+
+family_anova <- aov(Species_Identified ~ Database, data = family_data)
+summary(family_anova)  # Run ANOVA testing
+
+tukey_family_anova <- TukeyHSD(family_anova)
+tukey_family_anova  # Run Tukey HSD post-hoc testing
+
+# kruskal.test(Species_Identified ~ Database, data = family_data)
+# The Kruskal-Wallis test was run when taxonomic families with less than 5 species were still included in the testing data. However, as the n < 5 families were significant outliers, these were removed from the data. Adding 1 to any zeroes in the data, then log-transforming the remaining family data fulfilled the requirement of ANOVA for normal distribution of data. ANOVA results suggest no statistical significance in difference between the Regional database and the UNITE database (accessed through BLAST), but the Tukey HSD post-hoc test was run to find the variation in adjusted p-values for the different database instance pairs.
+```
+
+### Geographic Sampling Site Data Statistical Testing
+
+```{r}
+sites_data <- read_tsv("site_id_data.txt") %>%
+  mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Site)) %>%
+  mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Site))
+
+sites_blast_98 <- sites_data %>%
+  pull(Species_BLAST_98)
+sites_blast_985 <- sites_data %>%
+  pull(Species_BLAST_98_5)
+sites_regional <- sites_data %>%
+  pull(Species_Custom_Database)
+
+shapiro.test(sites_blast_98)  # Run Shapiro-Wilk tests to check for normal distribution of site-based data
+shapiro.test(sites_blast_985)
+shapiro.test(sites_regional)
+
+sites_data <- sites_data %>%
+  rename("BLAST_98" = Species_BLAST_98, "BLAST_98.5" = Species_BLAST_98_5, "Regional" = Species_Custom_Database) %>%
+  pivot_longer(c(BLAST_98, BLAST_98.5, Regional), names_to = "Database", values_to = "Species_Identified")  # Rename and pivot columns to facilitate ANOVA testing
+
+site_anova <- aov(Species_Identified ~ Database, data = sites_data)
+summary(site_anova)  # ANOVA testing on the site data
+
+tukey_site_anova <- TukeyHSD(site_anova)
+tukey_site_anova  # Run Tukey HSD post-hoc testing
+```
+
+### Taxonomic Family Data Visualization
+
+```{r}
+family_data <- read_tsv("family_data_for_f.txt") %>%
+  mutate(BLAST_98 = log(Species_BLAST_98), BLAST_98_5 = log(Species_BLAST_98_5), Regional = log(Species_Custom_Database)) %>%
+  rename("BLAST 98% (UNITE)" = BLAST_98, "BLAST 98.5% (UNITE)" = BLAST_98_5, "Regional" = Regional) 
+
+family_levels <- factor(c("Regional", "UNITE, 98%", "UNITE, 98.5%")) %>%
+  fct_recode("Regional" = "Regional", "UNITE, 98.5%"="UNITE, 98.5%", "UNITE, 98%" = "UNITE, 98%")  # Rename columns for ease of figure creation; create a factor for use in ordering database instances in figure
+
+family_data <- family_data %>%
+  pivot_longer(c(`BLAST 98% (UNITE)`, `BLAST 98.5% (UNITE)`, Regional), names_to = "Database", values_to = "Species_Identified") %>%
+  mutate(Database = factor(Database, family_levels))  # Pivot database instances into one column and values into another; mutate database column into a factor using family_levels factor for ordering
+
+family_visual <- ggplot(family_data, aes(x=Database, y=Species_Identified)) +
+  geom_col(aes(fill=Database), show.legend = FALSE) +
+  theme_bw() +
+  facet_wrap(~ Family, nrow=2) +
+  scale_fill_brewer(palette="Paired") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), axis.text = element_text(size=7), axis.title = element_text(size=13), plot.title = element_text(size=13), legend.title = element_text(size=11), legend.text = element_text(size=8), strip.text.x = element_text(size = 7), text=element_text(family="Arial")) +
+  labs(y = "", x = "", title="Species Hypotheses (log) Identified by Family, by Database")  # Create a visualization of the taxonomic family identification values for UNITE and for the custom regional database.
+
+family_visual  # Show taxonomic family data visualization
+
+
+family_data <- read_tsv("family_data_for_f.txt") %>%  # Prepare data for proportional figure
+  mutate(BLAST_98 = log(Species_BLAST_98), BLAST_98_5 = log(Species_BLAST_98_5), Regional = log(Species_Custom_Database)) %>%
+  rename("UNITE, 98%" = BLAST_98, "UNITE, 98.5%" = BLAST_98_5, "Regional" = Regional) %>%
+  mutate(Observed_log = log(Observed_Species_Per_Family)) %>%
+  select(-Observed_Species_Per_Family, -Species_Custom_Database, -Species_BLAST_98, -Species_BLAST_98_5) %>%
+  pivot_longer(c("UNITE, 98%", "UNITE, 98.5%", "Regional"), names_to = "Database", values_to = "Identified") %>%
+  mutate(Unidentified = Observed_log - Identified) %>%
+  mutate(Database = factor(Database, family_levels)) %>%
+  pivot_longer(c(Identified, Unidentified), names_to = "Status", values_to = "Number (log)") %>%
+  mutate(Status = factor(Status, c("Unidentified", "Identified")))
+  
+
+family_total_visual <- ggplot(family_data, aes(x=Database, y=`Number (log)`, fill = Status)) +
+  geom_bar(position="fill", stat="identity") +
+  theme_bw() +
+  facet_wrap(~ Family, nrow=2) +
+  scale_fill_brewer(palette="Paired", labels=c("Unidentified", "Identified")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), axis.text = element_text(size=12), axis.title = element_text(size=12), plot.title = element_text(size=15), legend.title = element_text(size=10), legend.text = element_text(size=7), strip.text.x = element_text(size=8.5)) +
+  labs(y = "", x="", title="")  # Create a visualization of the proportional taxonomic family identification values for UNITE and for the custom regional database.
+
+family_total_visual
+```
+
+### Geographic Sampling Site Data Visualization
+
+```{r}
+site_data <- read_tsv("site_id_data.txt")%>%
+  rename("UNITE, 98%" = Species_BLAST_98, "UNITE, 98.5%" = Species_BLAST_98_5, "Regional" = Species_Custom_Database)
+
+site_levels <- factor(c("Regional", "UNITE, 98%", "UNITE, 98.5%")) %>%
+  fct_recode("Regional" = "Regional", "UNITE, 98.5%"="UNITE, 98.5%", "UNITE, 98%" = "UNITE, 98%")  # Rename columns for ease of figure creation; create a factor for use in ordering database instances in figure
+
+site_data <- site_data %>%
+  pivot_longer(c(`UNITE, 98%`, `UNITE, 98.5%`, Regional), names_to = "Database", values_to = "Species_Identified") %>%
+  mutate(Database = factor(Database, site_levels))  # Pivot database instances into one column and values into another; mutate database column into a factor using site_levels factor for ordering
+
+site_visual <- ggplot(site_data, aes(x=Database, y=Species_Identified)) +
+  geom_col(aes(fill=Database), show.legend = FALSE) +
+  theme_bw() +
+  facet_wrap(~ Site, nrow=2) +
+  scale_fill_brewer(palette="Paired") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), axis.text = element_text(size=7), axis.title = element_text(size=12), plot.title = element_text(size=15), legend.title = element_text(size=10), legend.text = element_text(size=7), strip.text.x = element_text(size=7)) +
+  labs(y = "", x= "", title="Species Hypotheses Identified by Sampling Site, by Database")  # Create a visualization of the geographic sampling site identification values for UNITE and for the custom regional database.
+
+site_visual
+
+
+site_data <- read_tsv("site_id_data.txt")%>%  # Prepare data for proportional figure
+  rename("UNITE, 98%" = Species_BLAST_98, "UNITE, 98.5%" = Species_BLAST_98_5, "Regional" = Species_Custom_Database)
+
+site_levels <- factor(c("Regional", "UNITE, 98%", "UNITE, 98.5%")) %>%
+  fct_recode("Regional" = "Regional", "UNITE, 98.5%"="UNITE, 98.5%", "UNITE, 98%" = "UNITE, 98%")  # Rename columns for ease of figure creation; create a factor for use in ordering database instances in figure
+
+site_data <- site_data %>%
+  pivot_longer(c(`UNITE, 98%`, `UNITE, 98.5%`, Regional), names_to = "Database", values_to = "Species_Identified") %>%
+  mutate(Database = factor(Database, site_levels)) %>%
+  rename("Identified" = Species_Identified) %>%
+  mutate("Unidentified" = Observed_Species_Per_Site - Identified) %>%
+  select(-Observed_Species_Per_Site, -Percent_Custom_Database) %>%
+  pivot_longer(c(Identified, Unidentified), names_to = "Status", values_to = "Numbers") %>%
+  mutate(Status = factor(Status, c("Unidentified", "Identified")))
+
+site_total_visual <- ggplot(site_data, aes(x=Database, y=Numbers, fill = Status)) +
+  geom_bar(position="fill", stat="identity") +
+  theme_bw() +
+  facet_wrap(~ Site, nrow=2) +
+  scale_fill_brewer(palette="Paired", labels=c("Unidentified", "Identified")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), axis.text = element_text(size=12), axis.title = element_text(size=12), plot.title = element_text(size=15), legend.title = element_text(size=10), legend.text = element_text(size=7), strip.text.x = element_text(size=9)) +
+  labs(y = "", x="", title="")  # Create a visualization of the proportional geographic sampling site identification values for UNITE and for the custom regional database.
+
+site_total_visual
+```
+
+### Total Identification Data Visualization
+
+```{r}
+total_data <- read_tsv("total_data.txt") %>%
+  pivot_longer(c(Species_Identified, Not_Identified), names_to = "Status", values_to = "Number")
+
+total_levels <- factor(c("Regional", "UNITE, 98%", "UNITE, 98.5%")) %>%
+  fct_recode("Regional" = "Regional", "UNITE, 98.5%"="UNITE, 98.5%", "UNITE, 98%" = "UNITE, 98%")  # Pivot columns for ease of figure creation; create a factor for use in ordering database instances in figure
+
+total_data <- total_data %>%
+  mutate(Database = factor(Database, total_levels))  # Mutate database column into a factor using total_levels factor for ordering
+
+total_viz <- total_data %>%
+  ggplot(aes(x=Database, y=Number, fill=Status)) +
+  geom_bar(position="fill", stat="identity") +
+  theme_bw() +
+  scale_fill_brewer(palette="Paired", labels=c("Unidentified", "Identified")) +
+  theme(axis.text = element_text(size=12), axis.title = element_text(size=12), plot.title = element_text(size=15), legend.title = element_text(size=10), legend.text = element_text(size=7)) +
+  labs(y="", x = "", title="")  # Create a visualization of the total identification values for UNITE and for the custom regional database.
+
+total_viz  # Show total identification data visualization
+
+```
