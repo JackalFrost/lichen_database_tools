@@ -41,7 +41,7 @@ library(RColorBrewer)  # RColorBrewer helps with making colorblind-friendly figu
 ### Taxonomic Family Data Calculations
 
 ```{r}
-family_data <- read_tsv("family_data_for_f.txt") %>%
+family_data <- read_tsv("family_data.txt") %>%
   mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Family)) %>%
   mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Family)) %>%
   mutate(Perc_Regional = (Species_Custom_Database / Observed_Species_Per_Family))  # Modify taxonomic family data to include identification percentage columns.
@@ -126,7 +126,7 @@ print(sd(sites_regional_per)/sqrt(length(sites_regional_per)))
 ### Taxonomic Family Data Statistical Testing
 
 ```{r}
-family_data <- family_data <- read_tsv("family_data_for_f.txt") %>%
+family_data <- family_data <- read_tsv("family_data.txt") %>%
   mutate(Perc_Blast_98 = (Species_BLAST_98 / Observed_Species_Per_Family)) %>%
   mutate(Perc_Blast_98_5 = (Species_BLAST_98_5 / Observed_Species_Per_Family)) %>%
   rename("BLAST_98" = Species_BLAST_98, "BLAST_98.5" = Species_BLAST_98_5, "Regional" = Species_Custom_Database) %>%
@@ -181,7 +181,7 @@ tukey_site_anova  # Run Tukey HSD post-hoc testing
 ### Taxonomic Family Data Visualization
 
 ```{r}
-family_data <- read_tsv("family_data_for_f.txt") %>%
+family_data <- read_tsv("family_data.txt") %>%
   mutate(BLAST_98 = log(Species_BLAST_98), BLAST_98_5 = log(Species_BLAST_98_5), Regional = log(Species_Custom_Database)) %>%
   rename("BLAST 98% (UNITE)" = BLAST_98, "BLAST 98.5% (UNITE)" = BLAST_98_5, "Regional" = Regional) 
 
@@ -203,7 +203,7 @@ family_visual <- ggplot(family_data, aes(x=Database, y=Species_Identified)) +
 family_visual  # Show taxonomic family data visualization
 
 
-family_data <- read_tsv("family_data_for_f.txt") %>%  # Prepare data for proportional figure
+family_data <- read_tsv("family_data.txt") %>%  # Prepare data for proportional figure
   mutate(BLAST_98 = log(Species_BLAST_98), BLAST_98_5 = log(Species_BLAST_98_5), Regional = log(Species_Custom_Database)) %>%
   rename("UNITE, 98%" = BLAST_98, "UNITE, 98.5%" = BLAST_98_5, "Regional" = Regional) %>%
   mutate(Observed_log = log(Observed_Species_Per_Family)) %>%
