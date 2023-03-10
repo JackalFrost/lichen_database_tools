@@ -1,0 +1,15 @@
+Family	Observed_Species_Per_Family	Species_Custom_Database	Species_BLAST_98	Species_BLAST_98_5
+Acarosporaceae	62	39	16	15
+Caliciaceae	14	5	1	1
+Candelariaceae	32	16	9	7
+Cladoniaceae	6	4	5	3
+Lecanoraceae	75	65	29	27
+Megasporaceae	60	42	7	7
+Parmeliaceae	20	14	12	12
+Physciaceae	59	49	23	19
+Psoraceae	8	7	2	2
+Ramalinaceae	8	2	2	1
+Rhizocarpaceae	8	5	1	1
+Teloschistaceae	45	37	29	21
+Umbilicariaceae	9	8	5	2
+Verrucariaceae	52	38	14	9
