@@ -1,4 +1,4 @@
-blast_perc_identity	NFamily	Ngenus	Nspecies	in library?	5011-BC-2016SLpm-MSITS3	5987-1-PC-2015-MSITS3	5987-7-May-13-MSITS3	5987-DH-2015-MSITS3	5987-Delano-2018-MSITS3	5987-HC-2015-MSITS3	5987-MC-2013-MSITS3	5987-QC-2015-MSITS3	5987-WC-2015-MSITS3	BYU	paul_comb
+blast_perc_identity	NFamily	Ngenus	Nspecies	in library?	Broom_Canyon	Pine_Creek	Moore's_Creek	Death_Hollow	Delano_Peak	Harmon_Creek	Mosquito_Creek	Quail_Creek	Whipple_Creek	BYU	Paul_Bunyan's_Woodpile
 100	acarosporaceae	acarospora	americana	yes	159	0	0	0	0	0	0	0	0	0	0
 92	acarosporaceae	acarospora	boulderensis	yes	0	0	0	0	0	0	0	0	0	0	21
 97.368	acarosporaceae	acarospora	cluster104	no	113	0	0	0	665	0	0	0	0	0	171
